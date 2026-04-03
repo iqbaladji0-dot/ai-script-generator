@@ -1,21 +1,104 @@
-<script>
-  const API_KEY = "AIzaSyCij9Vql7_RT_b3Ufuo2lcc1zd8Zf_YKU8";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 16px;
+      background: #f7f7f7;
+    }
 
-  async function generateScript() {
-    const resultEl = document.getElementById("result");
-    resultEl.innerText = "Sedang membuat script...";
+    h1 {
+      margin-bottom: 24px;
+    }
 
-    const nama = document.getElementById("nama").value.trim();
-    const produk = document.getElementById("produk").value.trim();
-    const target = document.getElementById("target").value.trim();
-    const masalah = document.getElementById("masalah").value.trim();
-    const keunggulan = document.getElementById("keunggulan").value.trim();
-    const funnel = document.getElementById("funnel").value;
-    const tone = document.getElementById("tone").value;
-    const platform = document.getElementById("platform").value;
+    input, select, button {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 14px;
+      font-size: 16px;
+      box-sizing: border-box;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+    }
 
-    const prompt = `
-Buat 1 script video iklan pendek.
+    button {
+      cursor: pointer;
+      background: white;
+    }
+
+    #result {
+      white-space: pre-wrap;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 180px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Script Generator</h1>
+
+  <input id="nama" type="text" placeholder="Nama bisnis">
+  <input id="produk" type="text" placeholder="Produk/jasa">
+  <input id="target" type="text" placeholder="Target market">
+  <input id="masalah" type="text" placeholder="Masalah target">
+  <input id="keunggulan" type="text" placeholder="Keunggulan">
+
+  <select id="funnel">
+    <option value="TOFU">TOFU</option>
+    <option value="MOFU">MOFU</option>
+    <option value="BOFU">BOFU</option>
+  </select>
+
+  <select id="tone">
+    <option value="santai">santai</option>
+    <option value="profesional">profesional</option>
+    <option value="hard selling">hard selling</option>
+  </select>
+
+  <select id="platform">
+    <option value="TikTok">TikTok</option>
+    <option value="Instagram Reels">Instagram Reels</option>
+    <option value="Facebook Ads">Facebook Ads</option>
+  </select>
+
+  <button id="generateBtn" type="button">Generate</button>
+
+  <div id="result">Hasil script akan muncul di sini...</div>
+
+  <script>
+    const API_KEY = "GANTI_DENGAN_API_KEY_BARU_KAMU";
+
+    async function generateScript() {
+      const resultEl = document.getElementById("result");
+      resultEl.innerText = "Sedang membuat script...";
+
+      const nama = document.getElementById("nama").value.trim();
+      const produk = document.getElementById("produk").value.trim();
+      const target = document.getElementById("target").value.trim();
+      const masalah = document.getElementById("masalah").value.trim();
+      const keunggulan = document.getElementById("keunggulan").value.trim();
+      const funnel = document.getElementById("funnel").value;
+      const tone = document.getElementById("tone").value;
+      const platform = document.getElementById("platform").value;
+
+      if (!nama || !produk || !target || !masalah || !keunggulan) {
+        resultEl.innerText = "Isi semua field dulu.";
+        return;
+      }
+
+      const prompt = `
+Kamu adalah copywriter iklan berbahasa Indonesia.
+
+Buat 1 script video iklan pendek berdasarkan data berikut:
 
 Nama bisnis: ${nama}
 Produk/jasa: ${produk}
@@ -27,50 +110,57 @@ Tone: ${tone}
 Platform: ${platform}
 
 Aturan:
-- Langsung format skrip
+- Langsung tulis dalam format script
+- Jangan beri penjelasan tambahan
 - Jangan pakai tabel
-- Singkat & jelas
+- Jangan kasih beberapa opsi
+- Singkat, padat, jelas
+- Maksimal 100 kata
 
-Format:
+Format wajib:
 Hook:
 Body:
 CTA:
-    `.trim();
+      `.trim();
 
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }]
-              }
-            ]
-          })
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt }
+                  ]
+                }
+              ]
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          resultEl.innerText = "Request gagal:\n" + JSON.stringify(data, null, 2);
+          return;
         }
-      );
 
-      const data = await response.json();
+        const text =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "Tidak ada hasil dari Gemini.";
 
-      if (!response.ok) {
-        resultEl.innerText = "Error API:\\n" + JSON.stringify(data, null, 2);
-        return;
+        resultEl.innerText = text;
+      } catch (error) {
+        resultEl.innerText = "Terjadi error:\n" + error.message;
       }
-
-      const text =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Tidak ada hasil.";
-
-      resultEl.innerText = text;
-    } catch (error) {
-      resultEl.innerText = "Terjadi error:\\n" + error.message;
     }
-  }
 
-  document.getElementById("generateBtn").addEventListener("click", generateScript);
-</script>
+    document.getElementById("generateBtn").addEventListener("click", generateScript);
+  </script>
+</body>
+</html>
