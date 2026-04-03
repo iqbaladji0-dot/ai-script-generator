@@ -3,7 +3,57 @@
 <head>
   <title>AI Script Generator</title>
 </head>
-<body>
+<script>
+async function generateScript() {
+  const nama = document.querySelector('[placeholder="Nama bisnis"]').value;
+  const produk = document.querySelector('[placeholder="Produk/jasa"]').value;
+  const target = document.querySelector('[placeholder="Target market"]').value;
+  const masalah = document.querySelector('[placeholder="Masalah target"]').value;
+  const keunggulan = document.querySelector('[placeholder="Keunggulan"]').value;
+  const funnel = document.querySelectorAll("select")[0].value;
+  const tone = document.querySelectorAll("select")[1].value;
+  const platform = document.querySelectorAll("select")[2].value;
+
+  const prompt = `
+Buatkan skrip konten ${platform} dengan gaya ${tone}.
+
+Format:
+Hook:
+Body:
+CTA:
+
+Data:
+- Nama bisnis: ${nama}
+- Produk: ${produk}
+- Target: ${target}
+- Masalah: ${masalah}
+- Keunggulan: ${keunggulan}
+- Funnel: ${funnel}
+
+Buat singkat, padat, langsung siap dipakai.
+Jangan pakai tabel.
+`;
+
+  const response = await fetch("AIzaSyBRW_8ajyARK6ljYoJcLjyShP_7WJ_bkho", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{ text: prompt }]
+      }]
+    })
+  });
+
+  const data = await response.json();
+
+  const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "Error";
+
+  document.getElementById("result").innerText = result;
+}
+</script>
+  <body>
 
 <h2>Script Generator</h2>
 
