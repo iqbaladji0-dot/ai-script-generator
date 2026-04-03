@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Script Generator</title>
+</head>
+<body>
+
+<h2>Script Generator</h2>
+
+<input id="nama" placeholder="Nama bisnis"><br>
+<input id="produk" placeholder="Produk"><br>
+<input id="target" placeholder="Target market"><br>
+<input id="masalah" placeholder="Masalah"><br>
+<input id="keunggulan" placeholder="Keunggulan"><br>
+
+<select id="funnel">
+  <option>TOFU</option>
+  <option>MOFU</option>
+  <option>BOFU</option>
+</select><br>
+
+<select id="tone">
+  <option>santai</option>
+  <option>profesional</option>
+  <option>hard selling</option>
+</select><br>
+
+<select id="platform">
+  <option>TikTok</option>
+  <option>Instagram</option>
+</select><br><br>
+
+<button onclick="generate()">Generate</button>
+
+<pre id="output"></pre>
+
+<script>
+async function generate() {
+
+  const prompt = `
+Buat script video iklan.
+
+Nama Bisnis: ${nama.value}
+Produk: ${produk.value}
+Target Market: ${target.value}
+Masalah: ${masalah.value}
+Keunggulan: ${keunggulan.value}
+Funnel: ${funnel.value}
+Tone: ${tone.value}
+Platform: ${platform.value}
+
+Buat:
+- 3 Hook
+- 1 Body
+- 1 CTA
+`;
+
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=API_KEY_KAMU", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("output").innerText =
+    data.candidates[0].content.parts[0].text;
+}
+</script>
+
+</body>
+</html>
